@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Download Project ZIP - NASA Space Apps Submission</title>
+  <link rel="icon" type="image/svg+xml" href="https://upload.wikimedia.org/wikipedia/commons/e/e5/NASA_logo.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Orbitron:wght@600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0b0d17;
+      --card-bg: rgba(16, 22, 38, 0.85);
+      --card-border: rgba(0, 243, 255, 0.25);
+      --cyan: #00f3ff;
+      --cyan-glow: rgba(0, 243, 255, 0.35);
+      --purple: #7b2cbf;
+      --nasa-blue: #0b3d91;
+      --text: #f0f6fc;
+      --text-muted: #8b949e;
+      --green: #00ff88;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      background-image: 
+        radial-gradient(circle at 50% 15%, rgba(123, 44, 191, 0.25) 0%, transparent 60%),
+        radial-gradient(circle at 85% 85%, rgba(0, 243, 255, 0.15) 0%, transparent 50%);
+    }
+
+    .container {
+      max-width: 760px;
+      width: 100%;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 2.5rem;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 35px var(--cyan-glow);
+      backdrop-filter: blur(16px);
+      text-align: center;
+      animation: popIn 0.4s ease-out;
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.95) translateY(20px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(0, 243, 255, 0.1);
+      border: 1px solid var(--cyan);
+      color: var(--cyan);
+      padding: 0.35rem 0.85rem;
+      border-radius: 999px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      margin-bottom: 1rem;
+    }
+
+    h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.85rem;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      margin-bottom: 0.5rem;
+      line-height: 1.3;
+    }
+
+    h1 span {
+      color: var(--cyan);
+      text-shadow: 0 0 16px var(--cyan-glow);
+    }
+
+    p.subtitle {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 2rem;
+      line-height: 1.6;
+    }
+
+    .inventory-card {
+      background: rgba(11, 15, 26, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 1.25rem;
+      margin-bottom: 2rem;
+      text-align: left;
+    }
+
+    .inventory-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.85rem;
+      color: var(--cyan);
+      margin-bottom: 0.75rem;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .inventory-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.65rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+    }
+
+    .file-item {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      color: #cbd5e1;
+    }
+
+    .file-item span.icon { color: var(--green); }
+
+    .download-cta-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      width: 100%;
+      background: linear-gradient(135deg, var(--nasa-blue), var(--cyan));
+      color: #0b0d17;
+      border: none;
+      border-radius: 12px;
+      padding: 1.15rem 2rem;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+      cursor: pointer;
+      box-shadow: 0 6px 25px var(--cyan-glow);
+      transition: all 0.2s ease;
+      margin-bottom: 1.25rem;
+    }
+
+    .download-cta-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 35px var(--cyan-glow);
+    }
+
+    .download-cta-btn:active {
+      transform: translateY(1px);
+    }
+
+    .deploy-options-bar {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.85rem;
+      margin-top: 1.5rem;
+    }
+
+    .deploy-pill {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: var(--text);
+      text-decoration: none;
+      padding: 0.75rem 0.5rem;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .deploy-pill:hover {
+      border-color: var(--cyan);
+      background: rgba(0, 243, 255, 0.1);
+      color: var(--cyan);
+    }
+
+    .status-msg {
+      margin-top: 0.85rem;
+      font-size: 0.85rem;
+      color: var(--green);
+      font-family: 'JetBrains Mono', monospace;
+      min-height: 20px;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 1.75rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: color 0.2s;
+    }
+
+    .back-link:hover { color: var(--cyan); }
+
+    @media (max-width: 600px) {
+      .container { padding: 1.5rem; }
+      h1 { font-size: 1.4rem; }
+      .deploy-options-bar { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="badge">NASA SPACE APPS 2026 // PACKAGER</div>
+    <h1>SPACE MISSION <span>PROJECT ZIP</span></h1>
+    <p class="subtitle">
+      One-click offline packaging tool. Generates a clean, submission-ready ZIP containing all simulation assets, bilingual engine, and deployment configurations.
+    </p>
+
+    <div class="inventory-card">
+      <div class="inventory-title">
+        <span>ARCHIVE INVENTORY</span>
+        <span>7 FILES READY</span>
+      </div>
+      <div class="inventory-grid">
+        <div class="file-item"><span class="icon">✓</span> index.html (Main Game)</div>
+        <div class="file-item"><span class="icon">✓</span> style.css (Cosmic UI)</div>
+        <div class="file-item"><span class="icon">✓</span> script.js (Physics & AI)</div>
+        <div class="file-item"><span class="icon">✓</span> README.md (Documentation)</div>
+        <div class="file-item"><span class="icon">✓</span> netlify.toml (Netlify Config)</div>
+        <div class="file-item"><span class="icon">✓</span> vercel.json (Vercel Config)</div>
+        <div class="file-item"><span class="icon">✓</span> DEPLOYMENT_GUIDE.md</div>
+      </div>
+    </div>
+
+    <button id="download-zip-btn" class="download-cta-btn" type="button">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="7 10 12 15 17 10"></polyline>
+        <line x1="12" y1="15" x2="12" y2="3"></line>
+      </svg>
+      <span>DOWNLOAD NASA SUBMISSION ZIP</span>
+    </button>
+
+    <div id="status-display" class="status-msg">Click button to generate package...</div>
+
+    <div class="deploy-options-bar">
+      <a href="https://app.netlify.com/drop" target="_blank" rel="noopener noreferrer" class="deploy-pill">
+        <span>⚡ Netlify Drop</span>
+        <small style="color: var(--text-muted);">Instant URL in 15s</small>
+      </a>
+      <a href="https://vercel.com/new" target="_blank" rel="noopener noreferrer" class="deploy-pill">
+        <span>▲ Vercel Deploy</span>
+        <small style="color: var(--text-muted);">Zero-config hosting</small>
+      </a>
+      <a href="https://github.com/new" target="_blank" rel="noopener noreferrer" class="deploy-pill">
+        <span>🐙 GitHub Pages</span>
+        <small style="color: var(--text-muted);">Official Repo link</small>
+      </a>
+    </div>
+
+    <div>
+      <a href="index.html" class="back-link">← Return to Space Mission Design Game</a>
+    </div>
+  </div>
+
+  <script>
+    // CRC32 Table
+    const crcTable = new Uint32Array(256);
+    for (let i = 0; i < 256; i++) {
+      let c = i;
+      for (let j = 0; j < 8; j++) {
+        c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+      }
+      crcTable[i] = c;
+    }
+
+    function calcCRC32(uint8arr) {
+      let crc = 0xFFFFFFFF;
+      for (let i = 0; i < uint8arr.length; i++) {
+        crc = (crc >>> 8) ^ crcTable[(crc ^ uint8arr[i]) & 0xFF];
+      }
+      return (crc ^ 0xFFFFFFFF) >>> 0;
+    }
+
+    function buildPKZip(fileEntries) {
+      const encoder = new TextEncoder();
+      const fileRecords = [];
+      let currentOffset = 0;
+      const now = new Date();
+      const dosTime = (now.getHours() << 11) | (now.getMinutes() << 5) | (Math.floor(now.getSeconds() / 2));
+      const dosDate = ((now.getFullYear() - 1980) << 9) | ((now.getMonth() + 1) << 5) | now.getDate();
+
+      for (const entry of fileEntries) {
+        const nameBytes = encoder.encode(entry.name);
+        const contentBytes = typeof entry.data === 'string' ? encoder.encode(entry.data) : entry.data;
+        const crc = calcCRC32(contentBytes);
+        const size = contentBytes.length;
+
+        // Local Header (30 bytes + name)
+        const localHeader = new Uint8Array(30 + nameBytes.length);
+        const view = new DataView(localHeader.buffer);
+        view.setUint32(0, 0x04034b50, true);
+        view.setUint16(4, 20, true);
+        view.setUint16(6, 0x0800, true); // UTF-8
+        view.setUint16(8, 0, true);      // Stored
+        view.setUint16(10, dosTime, true);
+        view.setUint16(12, dosDate, true);
+        view.setUint32(14, crc, true);
+        view.setUint32(18, size, true);
+        view.setUint32(22, size, true);
+        view.setUint16(26, nameBytes.length, true);
+        view.setUint16(28, 0, true);
+        localHeader.set(nameBytes, 30);
+
+        fileRecords.push({
+          nameBytes,
+          crc,
+          size,
+          dosTime,
+          dosDate,
+          offset: currentOffset,
+          localHeader,
+          contentBytes
+        });
+
+        currentOffset += localHeader.length + size;
+      }
+
+      // Central Directory
+      const centralDirStart = currentOffset;
+      const centralRecords = [];
+      let centralDirSize = 0;
+
+      for (const rec of fileRecords) {
+        const cdHeader = new Uint8Array(46 + rec.nameBytes.length);
+        const view = new DataView(cdHeader.buffer);
+        view.setUint32(0, 0x02014b50, true);
+        view.setUint16(4, 20, true);
+        view.setUint16(6, 20, true);
+        view.setUint16(8, 0x0800, true);
+        view.setUint16(10, 0, true);
+        view.setUint16(12, rec.dosTime, true);
+        view.setUint16(14, rec.dosDate, true);
+        view.setUint32(16, rec.crc, true);
+        view.setUint32(20, rec.size, true);
+        view.setUint32(24, rec.size, true);
+        view.setUint16(28, rec.nameBytes.length, true);
+        view.setUint16(30, 0, true);
+        view.setUint16(32, 0, true);
+        view.setUint16(34, 0, true);
+        view.setUint16(36, 0, true);
+        view.setUint32(38, 0x81A40000, true);
+        view.setUint32(42, rec.offset, true);
+        cdHeader.set(rec.nameBytes, 46);
+
+        centralRecords.push(cdHeader);
+        centralDirSize += cdHeader.length;
+      }
+
+      // End of Central Directory
+      const eocd = new Uint8Array(22);
+      const eocdView = new DataView(eocd.buffer);
+      eocdView.setUint32(0, 0x06054b50, true);
+      eocdView.setUint16(4, 0, true);
+      eocdView.setUint16(6, 0, true);
+      eocdView.setUint16(8, fileRecords.length, true);
+      eocdView.setUint16(10, fileRecords.length, true);
+      eocdView.setUint32(12, centralDirSize, true);
+      eocdView.setUint32(16, centralDirStart, true);
+      eocdView.setUint16(20, 0, true);
+
+      const blobParts = [];
+      for (const rec of fileRecords) {
+        blobParts.push(rec.localHeader);
+        blobParts.push(rec.contentBytes);
+      }
+      for (const cd of centralRecords) {
+        blobParts.push(cd);
+      }
+      blobParts.push(eocd);
+
+      return new Blob(blobParts, { type: 'application/zip' });
+    }
+
+    async function packageAndDownload() {
+      const status = document.getElementById('status-display');
+      status.textContent = 'Collecting files...';
+      const fileNames = [
+        'index.html',
+        'style.css',
+        'script.js',
+        'README.md',
+        'netlify.toml',
+        'vercel.json',
+        'DEPLOYMENT_GUIDE.md'
+      ];
+
+      const entries = [];
+      for (const fname of fileNames) {
+        try {
+          const res = await fetch(fname);
+          if (res.ok) {
+            const text = await res.text();
+            entries.push({ name: fname, data: text });
+          }
+        } catch (e) {
+          console.warn('Could not fetch ' + fname + ', continuing with available files.');
+        }
+      }
+
+      // If fetch was blocked by local browser file:// CORS, fallback gracefully
+      if (entries.length === 0) {
+        status.textContent = 'Note: Local file protocol detected. Using package-zip.bat for full offline compression...';
+        alert("For local Windows folder packaging without a web server:\n\nSimply double-click 'package-zip.bat' in this folder to generate nasa-space-mission-game.zip in 1 second!");
+        return;
+      }
+
+      status.textContent = 'Compressing ' + entries.length + ' files into standard ZIP...';
+      const zipBlob = buildPKZip(entries);
+
+      const url = URL.createObjectURL(zipBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'nasa-space-mission-game.zip';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+
+      status.textContent = '✓ Package generated successfully: nasa-space-mission-game.zip';
+    }
+
+    document.getElementById('download-zip-btn').addEventListener('click', packageAndDownload);
+  </script>
+</body>
+</html>

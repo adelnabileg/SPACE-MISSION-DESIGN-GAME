@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Space Mission Design Game - NASA Space Apps</title>
+  <meta name="description" content="Design, balance, and launch your next-generation space probe in this interactive NASA mission architecture simulator with AI Mission Advisor.">
+  
+  <!-- Official NASA Favicon -->
+  <link rel="icon" type="image/svg+xml" href="https://upload.wikimedia.org/wikipedia/commons/e/e5/NASA_logo.svg">
+  <link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/commons/e/e5/NASA_logo.svg">
+  
+  <!-- Google Fonts: Orbitron, Rajdhani, Inter, JetBrains Mono, and Cairo (Arabic) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;700;800;900&family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Ambient Space Canvas Background for dynamic starfield and orbital trajectory lines -->
+  <canvas id="space-canvas" aria-hidden="true"></canvas>
+  <div class="space-overlay" aria-hidden="true"></div>
+
+  <!-- ==========================================================================
+       CINEMATIC ANIMATED PLANET OPENING (INTRO SPLASH SCREEN)
+       ========================================================================== -->
+  <div id="intro-splash-screen" class="intro-splash-overlay" role="dialog" aria-modal="true" aria-labelledby="intro-hero-title">
+    <!-- Orbital Cosmic Animation Graphic -->
+    <div class="intro-solar-system" aria-hidden="true">
+      <div class="solar-sun-core" title="Solar Energy Source"></div>
+      
+      <!-- Orbit 1: Moon & Earth -->
+      <div class="planet-orbit-track orbit-1">
+        <div class="orbiting-body body-moon" title="Earth & Moon">
+          <span class="body-label">Moon / Earth</span>
+        </div>
+      </div>
+      
+      <!-- Orbit 2: Mars -->
+      <div class="planet-orbit-track orbit-2">
+        <div class="orbiting-body body-mars" title="Mars">
+          <span class="body-label">Mars</span>
+        </div>
+      </div>
+      
+      <!-- Orbit 3: Asteroid Psyche -->
+      <div class="planet-orbit-track orbit-3">
+        <div class="orbiting-body body-psyche" title="16 Psyche">
+          <span class="body-label">16 Psyche</span>
+        </div>
+      </div>
+      
+      <!-- Orbit 4: Jupiter & Europa -->
+      <div class="planet-orbit-track orbit-4">
+        <div class="orbiting-body body-europa" title="Europa">
+          <span class="body-label">Europa</span>
+        </div>
+      </div>
+      
+      <!-- Glowing Cosmic Dust & Space Particles -->
+      <div class="cosmic-dust-particle dust-p1"></div>
+      <div class="cosmic-dust-particle dust-p2"></div>
+      <div class="cosmic-dust-particle dust-p3"></div>
+      <div class="cosmic-dust-particle dust-p4"></div>
+    </div>
+
+    <!-- Centered Hero Branding Card -->
+    <div class="intro-hero-card glass-card">
+      <div class="intro-badge-row">
+        <img 
+          src="https://www.nasa.gov/wp-content/themes/nasa/assets/images/nasa-logo.svg" 
+          alt="NASA Logo" 
+          class="intro-nasa-logo"
+          width="56"
+          height="46"
+          onerror="this.onerror=null;this.src='https://upload.wikimedia.org/wikipedia/commons/e/e5/NASA_logo.svg';"
+        />
+        <span class="badge-tag" data-i18n="tagSpaceApps">NASA SPACE APPS 2026</span>
+      </div>
+
+      <h1 id="intro-hero-title" class="intro-title">
+        <span data-i18n="mainTitlePart1">SPACE MISSION</span>
+        <span class="cyan-gradient" data-i18n="mainTitlePart2">DESIGN GAME</span>
+      </h1>
+      <p class="intro-subtitle" data-i18n="introMissionSubtitle">Concurrent Aerospace Engineering &amp; Orbital Architecture Simulation</p>
+
+      <div class="intro-telemetry-badge">
+        <span class="pulse-indicator" aria-hidden="true"></span>
+        <span data-i18n="introSystemReady">DSN SATELLITE TELEMETRY ONLINE • ALL SYSTEMS GO</span>
+      </div>
+
+      <!-- Glowing Start Mission Button -->
+      <div class="intro-action-wrap">
+        <button id="start-mission-intro-btn" class="intro-start-btn">
+          <span class="intro-btn-glow"></span>
+          <span class="intro-btn-content">
+            <svg class="intro-rocket-icon" viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+              <path d="M12 2.5s3.5 3 4 8c.5 5-2 8.5-4 11-2-2.5-4.5-6-4-11 .5-5 4-8 4-8z"/>
+              <path d="M7 14c-1.5 1-3 4-3 6 2 0 4.5-.5 5.5-2L7 14z"/>
+              <path d="M17 14c1.5 1 3 4 3 6-2 0-4.5-.5-5.5-2l2.5-4z"/>
+            </svg>
+            <span class="intro-btn-text" data-i18n="btnStartMission">START MISSION // ENTER SIMULATOR</span>
+            <svg class="intro-arrow-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </span>
+        </button>
+      </div>
+
+      <div class="intro-quick-tools">
+        <span class="intro-hint-text" data-i18n="introHint">Press Start or Spacebar to enter Mission Control</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="app-container">
+    <!-- NASA Header Bar -->
+    <header class="nasa-header" role="banner">
+      <div class="header-left">
+        <a href="https://www.nasa.gov" target="_blank" rel="noopener noreferrer" class="nasa-insignia" title="National Aeronautics and Space Administration (NASA)">
+          <!-- Official NASA Logo -->
+          <img 
+            src="https://www.nasa.gov/wp-content/themes/nasa/assets/images/nasa-logo.svg" 
+            alt="Official NASA Insignia Logo" 
+            class="nasa-official-logo"
+            width="52"
+            height="43"
+            loading="eager"
+            onerror="this.onerror=null;this.src='https://upload.wikimedia.org/wikipedia/commons/e/e5/NASA_logo.svg';"
+          />
+        </a>
+        <div class="header-titles">
+          <div class="title-eyebrow">
+            <span class="badge-tag" data-i18n="tagSpaceApps">NASA SPACE APPS 2026</span>
+            <span class="pulse-indicator" aria-hidden="true"></span>
+            <span class="live-status" data-i18n="dsnStatus">DSN TELEMETRY ONLINE</span>
+          </div>
+          <h1 class="main-title">
+            <span data-i18n="mainTitlePart1">SPACE MISSION</span> 
+            <span class="cyan-gradient" data-i18n="mainTitlePart2">DESIGN GAME</span>
+          </h1>
+          <p class="subtitle" data-i18n="subtitleText">Concurrent Aerospace Engineering &amp; Trade-off Simulator</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Quick Preset Mission Configurations -->
+        <div class="preset-selector-group">
+          <label for="mission-preset" class="preset-label" data-i18n="lblFlightTemplate">FLIGHT TEMPLATE:</label>
+          <select id="mission-preset" class="styled-select" aria-label="Load preset flight template">
+            <option value="custom" data-i18n="optCustom">Custom Build</option>
+            <option value="artemis" data-i18n="optArtemis">Artemis Lunar Scout</option>
+            <option value="perseverance" data-i18n="optPerseverance">Mars Science Rover</option>
+            <option value="deep_space" data-i18n="optDeepSpace">Psyche Asteroid Explorer</option>
+            <option value="europa_clipper" data-i18n="optEuropa">Europa Deep Habitability</option>
+          </select>
+        </div>
+
+        <!-- Language Switcher Button (AR / EN) -->
+        <button id="lang-toggle-btn" class="icon-btn header-tool-btn" title="تبديل اللغة / Switch Language" aria-label="Toggle Language">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="2" y1="12" x2="22" y2="12"></line>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+          </svg>
+          <span class="btn-text lang-text" id="lang-btn-label">العربية (AR)</span>
+        </button>
+
+        <!-- Theme Switcher Button (Dark / Light Mode) -->
+        <button id="theme-toggle-btn" class="icon-btn header-tool-btn" title="Toggle Light / Dark Mode" aria-label="Toggle Theme">
+          <svg id="theme-icon-sun" class="hidden" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg id="theme-icon-moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+          <span class="btn-text" id="theme-btn-label" data-i18n="lblTheme">LIGHT MODE</span>
+        </button>
+
+        <!-- Audio Effect Toggle -->
+        <button id="audio-toggle-btn" class="icon-btn header-tool-btn" title="Toggle Simulation Audio FX" aria-label="Toggle Mission Audio FX">
+          <svg id="audio-icon-on" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          </svg>
+          <svg id="audio-icon-off" class="hidden" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <line x1="23" y1="9" x2="17" y2="15"></line>
+            <line x1="17" y1="9" x2="23" y2="15"></line>
+          </svg>
+          <span class="btn-text" data-i18n="lblAudio">SFX AUDIO</span>
+        </button>
+
+        <!-- Fullscreen Mode Toggle -->
+        <button id="fullscreen-toggle-btn" class="icon-btn header-tool-btn" title="Toggle Fullscreen Mode / وضع ملء الشاشة" aria-label="Toggle Fullscreen">
+          <svg id="fullscreen-icon-enter" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+          </svg>
+          <svg id="fullscreen-icon-exit" class="hidden" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 14h6m0 0v6m0-6l-7 7m17-11h-6m0 0V4m0 6l7-7m-7 17l7 7M3 3l7 7"></path>
+          </svg>
+          <span class="btn-text" data-i18n="lblFullscreen">FULLSCREEN</span>
+        </button>
+
+        <!-- Replay Intro Button -->
+        <button id="replay-intro-btn" class="icon-btn header-tool-btn" title="View Animated Planet Intro" aria-label="View Opening Intro">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polygon points="10 8 16 12 10 16 10 8" fill="currentColor"></polygon>
+          </svg>
+          <span class="btn-text" data-i18n="lblReplayIntro">INTRO SCREEN</span>
+        </button>
+
+        <!-- Package ZIP Button -->
+        <button id="download-zip-btn" class="icon-btn header-tool-btn zip-glow-btn" title="Download Complete NASA Project ZIP / تنزيل المشروع كملف مضغوط" aria-label="Download Project ZIP">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span class="btn-text" data-i18n="lblDownloadZip">PACKAGE ZIP</span>
+        </button>
+
+        <!-- Live Deployment Guide Button -->
+        <button id="deploy-modal-btn" class="icon-btn header-tool-btn live-url-btn" title="Generate Live URL / إرشادات الحصول على رابط حي" aria-label="Live URL Guide">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="2" y1="12" x2="22" y2="12"></line>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+          </svg>
+          <span class="btn-text" data-i18n="lblLiveUrl">LIVE URL</span>
+        </button>
+
+        <!-- Reset Button -->
+        <button id="reset-mission-btn" class="icon-btn secondary-btn" title="Reset mission parameters" aria-label="Reset Build">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M2.5 2v6h6M21.5 22v-6h-6"></path>
+            <path d="M22 11.5A10 10 0 0 0 3.2 7.2L2.5 8M2 12.5a10 10 0 0 0 18.8 4.3l.7-.8"></path>
+          </svg>
+          <span class="btn-text" data-i18n="lblReset">RESET</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- ==========================================================================
+         STEP-BY-STEP PROGRESS STEPPER BAR (WIZARD NAVIGATION)
+         ========================================================================== -->
+    <nav class="wizard-stepper-bar glass-card" aria-label="Mission Workflow Stages">
+      <div class="stepper-track-line">
+        <div class="stepper-progress-fill" id="stepper-progress-fill" style="width: 0%;"></div>
+      </div>
+      <div class="stepper-steps-wrapper">
+        <!-- Step 1 Trigger -->
+        <button class="step-indicator-node active" id="stepper-step-1" data-step="1" type="button" aria-current="step">
+          <div class="step-node-badge">
+            <span class="step-badge-num">1</span>
+            <svg class="step-badge-check" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+          <div class="step-node-meta">
+            <span class="step-node-tag" data-i18n="step1Tag">STAGE 01</span>
+            <span class="step-node-title" data-i18n="step1Name">Target Destination</span>
+          </div>
+        </button>
+
+        <!-- Step 2 Trigger -->
+        <button class="step-indicator-node" id="stepper-step-2" data-step="2" type="button">
+          <div class="step-node-badge">
+            <span class="step-badge-num">2</span>
+            <svg class="step-badge-check" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+          <div class="step-node-meta">
+            <span class="step-node-tag" data-i18n="step2Tag">STAGE 02</span>
+            <span class="step-node-title" data-i18n="step2Name">Payload &amp; Hardware Specs</span>
+          </div>
+        </button>
+
+        <!-- Step 3 Trigger -->
+        <button class="step-indicator-node" id="stepper-step-3" data-step="3" type="button">
+          <div class="step-node-badge">
+            <span class="step-badge-num">3</span>
+            <svg class="step-badge-check" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+          <div class="step-node-meta">
+            <span class="step-node-tag" data-i18n="step3Tag">STAGE 03</span>
+            <span class="step-node-title" data-i18n="step3Name">Launch &amp; Mission Control</span>
+          </div>
+        </button>
+      </div>
+    </nav>
+
+    <!-- ==========================================================================
+         WIZARD STEP PANES CONTAINER (ONLY ONE DISPLAYED AT A TIME)
+         ========================================================================== -->
+    <main class="wizard-container" id="wizard-container" role="main">
+
+      <!-- ======================================================================
+           PAGE / STEP 1: DESTINATION SELECTION & ORBITAL CONSTRAINTS
+           ====================================================================== -->
+      <section class="wizard-step-pane active" id="wizard-pane-1" data-step="1" aria-labelledby="destination-heading">
+        <!-- Step 1 Header Banner -->
+        <div class="step-pane-banner glass-card">
+          <div class="step-banner-icon">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="2" y1="12" x2="22" y2="12"></line>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+            </svg>
+          </div>
+          <div class="step-banner-info">
+            <div class="step-phase-badge" data-i18n="step1BannerTag">MISSION PHASE 1: TARGET DESTINATION</div>
+            <h2 id="destination-heading" class="step-pane-title" data-i18n="headingCol1">1. TARGET DESTINATION</h2>
+            <p class="step-pane-desc" data-i18n="descCol1">Select your flight target and analyze mission constraints</p>
+          </div>
+        </div>
+
+        <div class="step1-grid-layout">
+          <!-- Orbital Destinations 2x2 Grid -->
+          <div class="destinations-roster-box glass-card">
+            <div class="box-inner-header">
+              <h3 class="box-title" data-i18n="lblSelectDestination">SELECT ORBITAL TARGET</h3>
+              <span class="box-hint" data-i18n="lblSelectDestinationHint">Choose a celestial body to inspect environmental constraints</span>
+            </div>
+            <div class="destination-selector-cards grid-2x2" id="destination-options" role="radiogroup" aria-label="Select Target Destination">
+              <!-- Dynamically populated via script.js -->
+            </div>
+          </div>
+
+          <!-- Selected Destination Deep-Dive Profile -->
+          <div class="destination-detail-card glass-card" id="destination-telemetry-box">
+            <div class="dest-preview-header">
+              <div class="dest-flag" id="dest-category-badge">INNER SOLAR SYSTEM</div>
+              <h3 id="dest-preview-name" class="dest-preview-name">Destination Name</h3>
+            </div>
+            <p id="dest-preview-desc" class="dest-preview-desc">Mission description and scientific objectives...</p>
+            
+            <div class="spec-metrics-grid">
+              <div class="spec-metric">
+                <span class="spec-label" data-i18n="lblSolarFlux">SOLAR FLUX (1/r²)</span>
+                <span class="spec-val" id="spec-solar-flux">100% (1.0 AU)</span>
+                <span class="spec-sub" id="spec-solar-note">Standard solar power</span>
+              </div>
+              <div class="spec-metric">
+                <span class="spec-label" data-i18n="lblCommsDelay">ROUND-TRIP DELAY</span>
+                <span class="spec-val" id="spec-comms-delay">2.6 sec</span>
+                <span class="spec-sub" data-i18n="subDirectComm">Direct Comm Link</span>
+              </div>
+              <div class="spec-metric">
+                <span class="spec-label" data-i18n="lblRadiationHazard">RADIATION HAZARD</span>
+                <span class="spec-val text-warning" id="spec-radiation">Moderate</span>
+                <span class="spec-sub" data-i18n="subRadiationRisk">Solar Flare Risk</span>
+              </div>
+              <div class="spec-metric">
+                <span class="spec-label" data-i18n="lblRequiredDeltaV">REQUIRED DELTA-V</span>
+                <span class="spec-val text-cyan" id="spec-delta-v">3.8 km/s</span>
+                <span class="spec-sub" data-i18n="subInjectionBurn">Injection Burn</span>
+              </div>
+            </div>
+
+            <div class="dest-warning-callout" id="dest-warning-callout">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+              <span id="dest-hazard-text">Engineering Note: High nighttime thermal swing requires thermal blanket isolation.</span>
+            </div>
+
+            <!-- Trigger to open detailed planet specifications modal -->
+            <button id="open-dest-specs-btn" class="dest-full-specs-btn" type="button" aria-label="View Full Destination Specifications">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+              </svg>
+              <span data-i18n="btnViewFullSpecs">🔍 Destination Specs &amp; Planetary Telemetry</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 1 Navigation Footer -->
+        <div class="step-nav-footer glass-card">
+          <div class="step-nav-status">
+            <span class="status-pulse-dot"></span>
+            <span id="step1-status-summary">Target Destination Selected</span>
+          </div>
+          <div class="step-nav-actions">
+            <button id="step1-next-btn" class="wizard-nav-btn next-btn" type="button">
+              <span data-i18n="btnNextPayload">Next: Configure Payload &amp; Specs</span>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================================================
+           PAGE / STEP 2: SUBSYSTEM PAYLOAD, HARDWARE & RESOURCE METERS
+           ====================================================================== -->
+      <section class="wizard-step-pane hidden" id="wizard-pane-2" data-step="2" aria-labelledby="equipment-heading">
+        <!-- Step 2 Header Banner -->
+        <div class="step-pane-banner glass-card">
+          <div class="step-banner-icon">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+              <line x1="8" y1="21" x2="16" y2="21"></line>
+              <line x1="12" y1="17" x2="12" y2="21"></line>
+            </svg>
+          </div>
+          <div class="step-banner-info">
+            <div class="step-phase-badge" data-i18n="step2BannerTag">MISSION PHASE 2: SUBSYSTEM CONFIGURATION</div>
+            <h2 id="equipment-heading" class="step-pane-title" data-i18n="headingCol2">2. SUBSYSTEM PAYLOAD &amp; HARDWARE</h2>
+            <p class="step-pane-desc" data-i18n="descCol2">Assemble equipment across 5 critical engineering disciplines</p>
+          </div>
+          <div class="selected-count-badge" id="selected-hardware-count">0 Items Mounted</div>
+        </div>
+
+        <div class="step2-grid-layout">
+          <!-- Left Area: Hardware Catalog & Category Tabs -->
+          <div class="hardware-roster-column glass-card">
+            <!-- Filter category tabs for fast subsystem navigation -->
+            <div class="category-tabs" role="tablist" aria-label="Subsystem categories">
+              <button class="cat-tab active" data-cat="all" role="tab" aria-selected="true" data-i18n="tabAll">All Systems</button>
+              <button class="cat-tab" data-cat="science" role="tab" aria-selected="false" data-i18n="tabScience">🔬 Science</button>
+              <button class="cat-tab" data-cat="propulsion" role="tab" aria-selected="false" data-i18n="tabPropulsion">🚀 Propulsion</button>
+              <button class="cat-tab" data-cat="power" role="tab" aria-selected="false" data-i18n="tabPower">⚡ Power</button>
+              <button class="cat-tab" data-cat="protection" role="tab" aria-selected="false" data-i18n="tabShielding">🛡️ Shielding</button>
+              <button class="cat-tab" data-cat="avionics" role="tab" aria-selected="false" data-i18n="tabComms">📡 Comms &amp; AI</button>
+            </div>
+
+            <!-- Scrollable Hardware Modules Container -->
+            <div class="hardware-roster-list grid-roster" id="hardware-list" role="list">
+              <!-- Dynamically populated with interactive hardware cards -->
+            </div>
+          </div>
+
+          <!-- Right Area: Resource Trade-Off Telemetry Meters Side Column -->
+          <div class="step2-telemetry-column glass-card">
+            <div class="box-inner-header">
+              <div class="panel-icon-circle accent-cyan">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+                </svg>
+              </div>
+              <div>
+                <h3 class="box-title" data-i18n="headingCol3">3. RESOURCE TRADE-OFF TELEMETRY</h3>
+                <span class="box-hint" data-i18n="descCol3">Real-time concurrent trade-off balance monitor</span>
+              </div>
+            </div>
+
+            <!-- Resource Progress Bar Indicators -->
+            <div class="resource-meters-container">
+              <!-- Metric 1: Budget Cap -->
+              <div class="meter-card" id="meter-budget-card">
+                <div class="meter-header">
+                  <div class="meter-name">
+                    <span class="meter-bullet budget-bullet"></span>
+                    <span class="meter-title" data-i18n="lblMissionBudget">MISSION BUDGET</span>
+                  </div>
+                  <div class="meter-numerical">
+                    <span id="val-budget-current" class="meter-curr">$0M</span>
+                    <span class="meter-slash">/</span>
+                    <span id="val-budget-limit" class="meter-max">$800M</span>
+                  </div>
+                </div>
+                <div class="progress-track" role="progressbar" id="bar-budget-container" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                  <div class="progress-fill budget-fill" id="bar-budget-fill" style="width: 0%;"></div>
+                  <div class="safety-limit-marker" title="Maximum Allowed Limit"></div>
+                </div>
+                <div class="meter-footer">
+                  <span class="meter-status-text" id="status-budget-text">Nominal allocation</span>
+                  <span class="meter-percent" id="pct-budget-text">0%</span>
+                </div>
+              </div>
+
+              <!-- Metric 2: Payload Mass Limit -->
+              <div class="meter-card" id="meter-mass-card">
+                <div class="meter-header">
+                  <div class="meter-name">
+                    <span class="meter-bullet mass-bullet"></span>
+                    <span class="meter-title" data-i18n="lblPayloadMass">PAYLOAD MASS CAPACITY</span>
+                  </div>
+                  <div class="meter-numerical">
+                    <span id="val-mass-current" class="meter-curr">0 kg</span>
+                    <span class="meter-slash">/</span>
+                    <span id="val-mass-limit" class="meter-max">3,500 kg</span>
+                  </div>
+                </div>
+                <div class="progress-track" role="progressbar" id="bar-mass-container" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                  <div class="progress-fill mass-fill" id="bar-mass-fill" style="width: 0%;"></div>
+                  <div class="safety-limit-marker" title="Maximum Launch Vehicle Capacity"></div>
+                </div>
+                <div class="meter-footer">
+                  <span class="meter-status-text" id="status-mass-text">Rocket payload capacity available</span>
+                  <span class="meter-percent" id="pct-mass-text">0%</span>
+                </div>
+              </div>
+
+              <!-- Metric 3: Power Generation vs Consumption -->
+              <div class="meter-card" id="meter-power-card">
+                <div class="meter-header">
+                  <div class="meter-name">
+                    <span class="meter-bullet power-bullet"></span>
+                    <span class="meter-title" data-i18n="lblPowerBalance">POWER BALANCE (kW)</span>
+                  </div>
+                  <div class="meter-numerical">
+                    <span id="val-power-gen" class="meter-curr power-gen">0.00 kW</span>
+                    <span class="meter-subtext" data-i18n="lblGenVs">gen vs</span>
+                    <span id="val-power-req" class="meter-curr power-req">0.00 kW</span>
+                    <span class="meter-subtext" data-i18n="lblReq">req</span>
+                  </div>
+                </div>
+                <div class="progress-track" role="progressbar" id="bar-power-container" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                  <div class="progress-fill power-fill" id="bar-power-fill" style="width: 0%;"></div>
+                </div>
+                <div class="meter-footer">
+                  <span class="meter-status-text" id="status-power-text">Net Power: ±0.0 kW</span>
+                  <span class="meter-percent" id="pct-power-text">0%</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 2 Quick Viability Status Strip -->
+            <div class="step2-readiness-strip">
+              <div class="strip-item">
+                <span class="strip-label" data-i18n="lblViabilityIndex">MISSION VIABILITY INDEX</span>
+                <span class="strip-value" id="step2-viability-badge">0%</span>
+              </div>
+              <div class="strip-item">
+                <span class="strip-label" data-i18n="lblScienceYield">SCIENCE YIELD</span>
+                <span class="strip-value text-cyan" id="step2-science-badge">0 PTS</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2 Navigation Footer -->
+        <div class="step-nav-footer glass-card">
+          <div class="step-nav-left">
+            <button id="step2-prev-btn" class="wizard-nav-btn back-btn" type="button">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+              </svg>
+              <span data-i18n="btnBackDest">Back: Target Destination</span>
+            </button>
+          </div>
+          <div class="step-nav-status">
+            <span class="status-pulse-dot"></span>
+            <span id="step2-summary-status">Subsystems Mounted: 0 Items</span>
+          </div>
+          <div class="step-nav-actions">
+            <button id="step2-next-btn" class="wizard-nav-btn next-btn" type="button">
+              <span data-i18n="btnNextLaunch">Next: Proceed to Launch Simulation</span>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ======================================================================
+           PAGE / STEP 3: FLIGHT VERIFICATION, LAUNCH PAD & MISSION CONTROL
+           ====================================================================== -->
+      <section class="wizard-step-pane hidden" id="wizard-pane-3" data-step="3" aria-labelledby="telemetry-heading">
+        <!-- Step 3 Header Banner -->
+        <div class="step-pane-banner glass-card">
+          <div class="step-banner-icon">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2.5s3.5 3 4 8c.5 5-2 8.5-4 11-2-2.5-4.5-6-4-11 .5-5 4-8 4-8z"/>
+              <path d="M7 14c-1.5 1-3 4-3 6 2 0 4.5-.5 5.5-2L7 14z"/>
+              <path d="M17 14c1.5 1 3 4 3 6-2 0-4.5-.5-5.5-2l2.5-4z"/>
+            </svg>
+          </div>
+          <div class="step-banner-info">
+            <div class="step-phase-badge" data-i18n="step3BannerTag">MISSION PHASE 3: FLIGHT VERIFICATION &amp; LAUNCH</div>
+            <h2 id="telemetry-heading" class="step-pane-title" data-i18n="step3Name">Launch &amp; Mission Control</h2>
+            <p class="step-pane-desc" data-i18n="step3ReadyDesc">Review final flight telemetry, verify subsystem integrity, and initiate launch countdown.</p>
+          </div>
+        </div>
+
+        <div class="step3-grid-layout">
+          <!-- Left Column: Flight Manifest, Directives & Launch Trigger -->
+          <div class="step3-flight-deck glass-card">
+            <!-- Flight Manifest Summary Metrics (4 Gauges) -->
+            <div class="flight-manifest-header">
+              <h3 class="box-title" data-i18n="lblFlightDeckOverview">FLIGHT MANIFEST &amp; TELEMETRY</h3>
+              <span class="cockpit-target-badge" id="cockpit-target-name">Target: Mars (Jezero Crater)</span>
+            </div>
+
+            <div class="manifest-metrics-grid">
+              <div class="manifest-card">
+                <span class="manifest-card-label" data-i18n="lblBudgetSpent">BUDGET ALLOCATION</span>
+                <span class="manifest-card-val text-cost" id="cockpit-budget-val">$0M / $800M</span>
+              </div>
+              <div class="manifest-card">
+                <span class="manifest-card-label" data-i18n="lblLaunchMass">TOTAL LAUNCH MASS</span>
+                <span class="manifest-card-val text-mass" id="cockpit-mass-val">0 kg / 3,500 kg</span>
+              </div>
+              <div class="manifest-card">
+                <span class="manifest-card-label" data-i18n="lblElectricalBalance">ELECTRICAL MARGIN</span>
+                <span class="manifest-card-val text-power" id="cockpit-power-val">±0.00 kW</span>
+              </div>
+              <div class="manifest-card">
+                <span class="manifest-card-label" data-i18n="lblEstimatedScience">SCIENCE POTENTIAL</span>
+                <span class="manifest-card-val text-cyan" id="cockpit-science-val">0 PTS</span>
+              </div>
+            </div>
+
+            <!-- Readiness Viability Card & Directives Checklist -->
+            <div class="readiness-assessment-card">
+              <div class="readiness-header">
+                <div>
+                  <span class="readiness-title" data-i18n="lblViabilityIndex">MISSION VIABILITY INDEX</span>
+                  <div class="readiness-score-row">
+                    <span class="readiness-score" id="readiness-score-val">0%</span>
+                    <span class="readiness-verdict-pill" id="readiness-verdict-pill" data-i18n="pillNoHardware">NO HARDWARE</span>
+                  </div>
+                </div>
+                <div class="science-roi-box">
+                  <span class="science-label" data-i18n="lblScienceYield">SCIENCE YIELD</span>
+                  <span class="science-points" id="science-points-val">0 <small data-i18n="ptsSmall">PTS</small></span>
+                </div>
+              </div>
+
+              <!-- Live Engineering Warnings / Violations List -->
+              <div class="flight-checks-container">
+                <div class="flight-checks-title" data-i18n="lblFlightDirectives">FLIGHT READINESS DIRECTIVES:</div>
+                <ul class="flight-checks-list" id="flight-checks-list">
+                  <!-- Populated via script.js -->
+                </ul>
+              </div>
+            </div>
+
+            <!-- Prominent Launch Mission Button -->
+            <div class="launch-action-wrapper">
+              <button id="launch-mission-btn" class="launch-btn" disabled>
+                <div class="launch-btn-glow"></div>
+                <div class="launch-btn-content">
+                  <svg class="rocket-icon" viewBox="0 0 24 24" width="26" height="26" fill="currentColor">
+                    <path d="M12 2.5s3.5 3 4 8c.5 5-2 8.5-4 11-2-2.5-4.5-6-4-11 .5-5 4-8 4-8z"/>
+                    <path d="M7 14c-1.5 1-3 4-3 6 2 0 4.5-.5 5.5-2L7 14z"/>
+                    <path d="M17 14c1.5 1 3 4 3 6-2 0-4.5-.5-5.5-2l2.5-4z"/>
+                    <circle cx="12" cy="10" r="1.5" fill="#0b0d17"/>
+                  </svg>
+                  <div class="launch-btn-labels">
+                    <span class="btn-main-label" data-i18n="btnInitiateLaunch">INITIATE LAUNCH SIMULATION</span>
+                    <span class="btn-sub-label" id="launch-sub-label" data-i18n="lblAwaitingStatus">Awaiting System Green Status</span>
+                  </div>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <!-- Right Column: Cockpit AI Flight Advisor Console -->
+          <div class="step3-ai-station glass-card">
+            <div class="cockpit-ai-header">
+              <div class="cockpit-ai-profile">
+                <div class="ai-avatar-badge">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2a8 8 0 0 0-8 8c0 3.37 2.1 6.27 5.09 7.43L8 22l4.5-2.5L17 22l-1.09-4.57A8 8 0 0 0 12 2z"></path>
+                    <circle cx="9" cy="10" r="1" fill="currentColor"></circle>
+                    <circle cx="15" cy="10" r="1" fill="currentColor"></circle>
+                    <path d="M9.5 14a3.5 3.5 0 0 0 5 0"></path>
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="cockpit-ai-name" data-i18n="lblCockpitAiTitle">NASA AI FLIGHT ADVISOR</h3>
+                  <span class="cockpit-ai-status">
+                    <span class="status-pulse-dot"></span>
+                    <span data-i18n="lblCockpitAiStatus">Active Flight Telemetry Analysis</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Real-Time AI Diagnostic Output Box -->
+            <div class="cockpit-ai-diagnostic-box">
+              <div class="diagnostic-box-title" data-i18n="lblQuickAdviceHint">Real-time AI Engineering Tip:</div>
+              <p class="diagnostic-text" id="cockpit-ai-diagnostic">
+                Analyzing your spacecraft configuration against destination risks...
+              </p>
+            </div>
+
+            <!-- Quick Action Chips for Fast Queries -->
+            <div class="cockpit-prompts-list">
+              <button class="ai-prompt-chip" data-prompt="analyze" data-i18n="promptAnalyze">📊 Analyze Current Setup</button>
+              <button class="ai-prompt-chip" data-prompt="power" data-i18n="promptPower">⚡ How to fix power deficit?</button>
+              <button class="ai-prompt-chip" data-prompt="destination" data-i18n="promptDest">🪐 Target destination advice</button>
+              <button class="ai-prompt-chip" data-prompt="budget" data-i18n="promptBudget">💰 How to maximize Science ROI?</button>
+            </div>
+
+            <!-- Open Full AI Chat CTA -->
+            <div class="cockpit-chat-action">
+              <button id="open-ai-chat-from-step3" class="cockpit-chat-btn" type="button">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                </svg>
+                <span data-i18n="btnOpenFullAiChat">Open Full AI Conversation</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3 Navigation Footer -->
+        <div class="step-nav-footer glass-card">
+          <div class="step-nav-left">
+            <button id="step3-prev-btn" class="wizard-nav-btn back-btn" type="button">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+              </svg>
+              <span data-i18n="btnBackPayload">Back: Modify Payload</span>
+            </button>
+          </div>
+          <div class="step-nav-status">
+            <span class="status-pulse-dot"></span>
+            <span id="step3-footer-status">Pre-Flight Review Ready</span>
+          </div>
+          <div class="step-nav-actions">
+            <!-- Secondary launch shortcut in footer -->
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- NASA Footer -->
+    <footer class="nasa-footer">
+      <div class="footer-left">
+        <span data-i18n="footerChallenge">NASA International Space Apps Challenge 2026</span>
+        <span class="footer-dot">•</span>
+        <span data-i18n="footerSimName">Space Mission Design Simulation</span>
+        <span class="footer-dot">•</span>
+        <span class="footer-accent" data-i18n="footerOpenData">Open Data &amp; Concurrent Aerospace Engineering</span>
+      </div>
+      <div class="footer-right">
+        <span data-i18n="footerPhysicsModel">Physics Model: Solar 1/r² Irradiance • Mass Fraction • Space Weather Risk</span>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ==========================================================================
+       EMBEDDED AI MISSION ASSISTANT (CHATGPT-STYLE FLOATING WIDGET)
+       ========================================================================== -->
+  <aside id="ai-advisor-wrapper" class="ai-advisor-wrapper" aria-label="NASA AI Mission Advisor">
+    <!-- Floating Chat Trigger Button -->
+    <button id="ai-chat-toggle-btn" class="ai-fab-btn" title="Open NASA AI Mission Advisor" aria-expanded="false" aria-controls="ai-chat-card">
+      <div class="ai-fab-glow"></div>
+      <div class="ai-fab-avatar">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2a8 8 0 0 0-8 8c0 3.37 2.1 6.27 5.09 7.43L8 22l4.5-2.5L17 22l-1.09-4.57A8 8 0 0 0 12 2z"></path>
+          <circle cx="9" cy="10" r="1" fill="currentColor"></circle>
+          <circle cx="15" cy="10" r="1" fill="currentColor"></circle>
+          <path d="M9.5 14a3.5 3.5 0 0 0 5 0"></path>
+        </svg>
+      </div>
+      <span class="ai-fab-badge" id="ai-status-pulse"></span>
+      <span class="ai-fab-tooltip" data-i18n="lblAdvisorTooltip">NASA AI Advisor</span>
+    </button>
+
+    <!-- Expandable Chatbot Window -->
+    <div id="ai-chat-card" class="ai-chat-card glass-card hidden" role="region" aria-labelledby="ai-chat-title">
+      <!-- Chat Header -->
+      <div class="ai-chat-header">
+        <div class="ai-header-profile">
+          <div class="ai-header-avatar">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2a8 8 0 0 0-8 8c0 3.37 2.1 6.27 5.09 7.43L8 22l4.5-2.5L17 22l-1.09-4.57A8 8 0 0 0 12 2z"></path>
+              <circle cx="9" cy="10" r="1" fill="currentColor"></circle>
+              <circle cx="15" cy="10" r="1" fill="currentColor"></circle>
+              <path d="M9.5 14a3.5 3.5 0 0 0 5 0"></path>
+            </svg>
+          </div>
+          <div>
+            <h3 id="ai-chat-title" class="ai-header-name" data-i18n="aiAdvisorTitle">NASA AI Advisor</h3>
+            <span class="ai-header-status">
+              <span class="ai-live-dot"></span>
+              <span data-i18n="aiStatusAnalyzing">Online • Real-Time Telemetry Monitor</span>
+            </span>
+          </div>
+        </div>
+        <div class="ai-header-actions">
+          <button id="ai-clear-chat-btn" class="ai-tool-btn" title="Clear conversation history" aria-label="Clear chat">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+          </button>
+          <button id="ai-close-chat-btn" class="ai-tool-btn" title="Minimize Advisor" aria-label="Close chat">&times;</button>
+        </div>
+      </div>
+
+      <!-- Quick Suggestion Action Chips -->
+      <div class="ai-quick-prompts" id="ai-quick-prompts">
+        <button class="ai-prompt-chip" data-prompt="analyze" data-i18n="promptAnalyze">📊 Analyze Current Setup</button>
+        <button class="ai-prompt-chip" data-prompt="power" data-i18n="promptPower">⚡ How to fix power deficit?</button>
+        <button class="ai-prompt-chip" data-prompt="destination" data-i18n="promptDest">🪐 Target destination advice</button>
+        <button class="ai-prompt-chip" data-prompt="budget" data-i18n="promptBudget">💰 How to maximize Science ROI?</button>
+      </div>
+
+      <!-- Chat Messages Container -->
+      <div class="ai-chat-body" id="ai-chat-body" role="log" aria-live="polite">
+        <!-- Messages rendered dynamically via script.js -->
+      </div>
+
+      <!-- Chat Input Area -->
+      <form id="ai-chat-form" class="ai-chat-input-bar">
+        <input type="text" id="ai-user-input" class="ai-text-input" placeholder="Ask AI about mass, power, or radiation..." data-i18n-placeholder="aiInputPlaceholder" autocomplete="off">
+        <button type="submit" id="ai-send-btn" class="ai-send-btn" aria-label="Send query">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+        </button>
+      </form>
+    </div>
+  </aside>
+
+  <!-- MODAL 1: 3-SECOND REAL-TIME LAUNCH SEQUENCE ANIMATION MODAL -->
+  <div class="modal-overlay hidden" id="launch-modal" role="dialog" aria-modal="true" aria-labelledby="countdown-timer">
+    <div class="launch-modal-container glass-card">
+      <div class="launch-hud-header">
+        <div class="hud-tag" data-i18n="hudMissionControl">MISSION CONTROL CENTER • HOUSTON / JPL</div>
+        <div class="hud-status-badge" data-i18n="hudStatusCountdown">T-MINUS SEQUENCE IN PROGRESS</div>
+      </div>
+
+      <!-- Launch Stage Visual Display -->
+      <div class="launch-stage-visual">
+        <canvas id="launch-trajectory-canvas" width="600" height="260"></canvas>
+        <div class="countdown-hud-overlay">
+          <div class="countdown-digits" id="countdown-timer">T-03</div>
+          <div class="countdown-stage-name" id="launch-stage-desc">TERMINAL COUNTDOWN &amp; ENGINE CHILL</div>
+        </div>
+      </div>
+
+      <!-- Live Streamed Flight Telemetry Output -->
+      <div class="telemetry-terminal">
+        <div class="terminal-bar">
+          <span class="terminal-dot red"></span>
+          <span class="terminal-dot yellow"></span>
+          <span class="terminal-dot green"></span>
+          <span class="terminal-title" data-i18n="hudDownlinkTitle">LIVE TELEMETRY DOWNLINK [DSN-43 CANBERRA]</span>
+        </div>
+        <div class="terminal-log-content" id="telemetry-log-content">
+          <!-- Streamed lines appended via JavaScript -->
+        </div>
+      </div>
+
+      <!-- In-flight Space Weather Event Alert Box -->
+      <div class="weather-alert-box hidden" id="weather-alert-box">
+        <div class="weather-icon-pulse">
+          <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>
+        </div>
+        <div class="weather-alert-info">
+          <div class="weather-headline" id="weather-event-title">SPACE WEATHER ANOMALY DETECTED</div>
+          <div class="weather-subtext" id="weather-event-desc">Coronal Mass Ejection wave impacting deep space transit corridor...</div>
+        </div>
+        <div class="weather-defense-tag" id="weather-defense-tag">ANALYZING COUNTERMEASURES</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 2: COMPREHENSIVE POST-MISSION FLIGHT DEBRIEF REPORT -->
+  <div class="modal-overlay hidden" id="debrief-modal" role="dialog" aria-modal="true" aria-labelledby="debrief-title">
+    <div class="debrief-modal-container glass-card">
+      
+      <div class="debrief-top-header">
+        <div class="debrief-badge" id="debrief-classification" data-i18n="debriefClassification">NASA MISSION DEBRIEF REPORT // LEVEL 4</div>
+        <button class="close-modal-btn" id="close-debrief-btn" aria-label="Close Debriefing Report">&times;</button>
+      </div>
+
+      <div class="debrief-hero" id="debrief-hero-banner">
+        <div class="debrief-outcome-icon" id="debrief-icon">🏆</div>
+        <div>
+          <h2 class="debrief-verdict-title" id="debrief-title">MISSION STATUS REPORT</h2>
+          <p class="debrief-subtitle" id="debrief-destination-line">Destination: Mars Perseverance Site • Target Orbit Achieved</p>
+        </div>
+        <div class="grade-pill-box">
+          <span class="grade-title" data-i18n="lblGrade">ENGINEERING GRADE</span>
+          <span class="grade-letter" id="debrief-grade">A+</span>
+        </div>
+      </div>
+
+      <!-- Debrief Core Metrics Grid -->
+      <div class="debrief-stats-grid">
+        <div class="debrief-stat-card">
+          <span class="debrief-stat-label" data-i18n="lblTotalBudgetConsumed">TOTAL BUDGET CONSUMED</span>
+          <span class="debrief-stat-value" id="debrief-budget-val">$0M</span>
+          <span class="debrief-stat-sub" id="debrief-budget-margin">+12% Surplus</span>
+        </div>
+        <div class="debrief-stat-card">
+          <span class="debrief-stat-label" data-i18n="lblPayloadMassUtil">PAYLOAD MASS UTILIZATION</span>
+          <span class="debrief-stat-value" id="debrief-mass-val">0 kg</span>
+          <span class="debrief-stat-sub" id="debrief-mass-margin">Margin: Nominal</span>
+        </div>
+        <div class="debrief-stat-card">
+          <span class="debrief-stat-label" data-i18n="lblPowerGenMargin">POWER GENERATION MARGIN</span>
+          <span class="debrief-stat-value" id="debrief-power-val">+0.0 kW</span>
+          <span class="debrief-stat-sub" id="debrief-power-margin">Operating nominal</span>
+        </div>
+        <div class="debrief-stat-card">
+          <span class="debrief-stat-label" data-i18n="lblScienceDataReturned">SCIENCE DATA RETURNED</span>
+          <span class="debrief-stat-value text-cyan" id="debrief-science-val">0 pts</span>
+          <span class="debrief-stat-sub" id="debrief-science-ratio">High ROI</span>
+        </div>
+      </div>
+
+      <!-- Mission Narrative & Space Weather Encounter Post-Mortem -->
+      <div class="debrief-analysis-section">
+        <h4 class="analysis-heading" data-i18n="lblMissionLogPostMortem">MISSION LOG &amp; TRADE-OFF POST-MORTEM:</h4>
+        <div class="debrief-text-narrative" id="debrief-narrative">
+          <!-- Formatted post-mortem analysis filled by script.js -->
+        </div>
+
+        <div class="weather-debrief-card" id="weather-debrief-summary">
+          <!-- Space weather impact summary filled by script.js -->
+        </div>
+      </div>
+
+      <!-- Action Buttons in Debrief -->
+      <div class="debrief-action-buttons">
+        <button id="debrief-reconfigure-btn" class="action-btn primary">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21.5 2v6h-6M2.5 22v-6h6"></path>
+            <path d="M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"></path>
+          </svg>
+          <span data-i18n="btnReconfigure">Reconfigure &amp; Re-Fly Mission</span>
+        </button>
+        <button id="debrief-print-cert-btn" class="action-btn secondary cert-action-btn">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="6 9 6 2 18 2 18 9"></polyline>
+            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+            <rect x="6" y="14" width="12" height="8"></rect>
+          </svg>
+          <span data-i18n="btnPrintCertificate">Print Certificate</span>
+        </button>
+        <button id="debrief-export-btn" class="action-btn secondary">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span data-i18n="btnExportJSON">Export Mission Telemetry (JSON)</span>
+        </button>
+        <button id="debrief-share-btn" class="action-btn secondary">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="18" cy="5" r="3"></circle>
+            <circle cx="6" cy="12" r="3"></circle>
+            <circle cx="18" cy="19" r="3"></circle>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+          </svg>
+          <span data-i18n="btnShareLog">Share Flight Log</span>
+        </button>
+        <button id="debrief-download-zip-btn" class="action-btn secondary zip-action-btn">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span data-i18n="btnDownloadSubmissionZip">Package ZIP</span>
+        </button>
+        <button id="debrief-deploy-btn" class="action-btn secondary deploy-action-btn">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="2" y1="12" x2="22" y2="12"></line>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+          </svg>
+          <span data-i18n="btnDeployLiveOnline">Deploy Live URL</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 3: ORGANIZED PLANETARY INFORMATION & SPECS MODAL
+       ========================================================================== -->
+  <div class="modal-overlay hidden" id="planet-specs-modal" role="dialog" aria-modal="true" aria-labelledby="planet-modal-name">
+    <div class="planet-modal-container glass-card">
+      <div class="planet-modal-header">
+        <div class="planet-header-info">
+          <div class="planet-modal-avatar" id="planet-modal-avatar">🪐</div>
+          <div>
+            <div class="dest-flag" id="planet-modal-tag">INNER SOLAR SYSTEM</div>
+            <h2 class="planet-modal-name" id="planet-modal-name">Mars Jezero Crater</h2>
+          </div>
+        </div>
+        <button class="close-modal-btn" id="close-planet-modal-btn" aria-label="Close Planet Specifications">&times;</button>
+      </div>
+
+      <div class="planet-modal-summary" id="planet-modal-desc">
+        Mission description and planetary background...
+      </div>
+
+      <!-- Core Planetary Physics & Environmental Metrics Grid -->
+      <div class="planet-specs-grid">
+        <div class="planet-spec-card">
+          <span class="planet-spec-label" data-i18n="lblPlanetGravity">SURFACE GRAVITY</span>
+          <span class="planet-spec-val" id="planet-modal-gravity">3.72 m/s² (0.38 g)</span>
+        </div>
+        <div class="planet-spec-card">
+          <span class="planet-spec-label" data-i18n="lblPlanetAtmosphere">ATMOSPHERE &amp; PRESSURE</span>
+          <span class="planet-spec-val" id="planet-modal-atmosphere">0.006 bar (95.3% CO₂)</span>
+        </div>
+        <div class="planet-spec-card">
+          <span class="planet-spec-label" data-i18n="lblPlanetTemperature">SURFACE TEMPERATURE</span>
+          <span class="planet-spec-val text-warning" id="planet-modal-temp">-125°C to +20°C</span>
+        </div>
+        <div class="planet-spec-card">
+          <span class="planet-spec-label" data-i18n="lblSolarFlux">SOLAR FLUX (1/r²)</span>
+          <span class="planet-spec-val text-cyan" id="planet-modal-flux">43% (1.52 AU)</span>
+        </div>
+        <div class="planet-spec-card">
+          <span class="planet-spec-label" data-i18n="lblRequiredDeltaV">REQUIRED DELTA-V</span>
+          <span class="planet-spec-val" id="planet-modal-deltav">4.3 km/s</span>
+        </div>
+        <div class="planet-spec-card">
+          <span class="planet-spec-label" data-i18n="lblCommsDelay">ROUND-TRIP DELAY</span>
+          <span class="planet-spec-val" id="planet-modal-latency">14.2 min</span>
+        </div>
+      </div>
+
+      <!-- 2-Column Organized Details: Objectives & Recommended Gear -->
+      <div class="planet-details-columns">
+        <div class="planet-col-card">
+          <h4 class="planet-col-title" data-i18n="lblKeyObjectives">KEY SCIENTIFIC OBJECTIVES:</h4>
+          <ul class="planet-bullets-list" id="planet-modal-objectives">
+            <!-- Populated via script.js -->
+          </ul>
+        </div>
+        <div class="planet-col-card">
+          <h4 class="planet-col-title" data-i18n="lblRecommendedGear">RECOMMENDED SUBSYSTEM GEAR:</h4>
+          <ul class="planet-bullets-list" id="planet-modal-gear">
+            <!-- Populated via script.js -->
+          </ul>
+        </div>
+      </div>
+
+      <!-- Environmental Hazard Analysis Callout -->
+      <div class="planet-hazard-box">
+        <div class="hazard-box-header">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+          <span data-i18n="lblEnvironmentalHazards">ENVIRONMENTAL HAZARDS &amp; RISKS</span>
+        </div>
+        <p class="hazard-box-text" id="planet-modal-hazards">
+          Detailed hazard text...
+        </p>
+      </div>
+
+      <!-- Modal Action Buttons -->
+      <div class="planet-modal-actions">
+        <button id="planet-modal-select-btn" class="action-btn primary">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          <span data-i18n="btnSelectThisDestination">Select This Destination &amp; Return to Workbench</span>
+        </button>
+        <button id="planet-modal-dismiss-btn" class="action-btn secondary">
+          <span data-i18n="btnPlanetSpecsModalClose">Close Specs</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 4: INSTANT LIVE URL & SUBMISSION DEPLOYMENT MODAL
+       ========================================================================== -->
+  <div class="modal-overlay hidden" id="deployment-modal" role="dialog" aria-modal="true" aria-labelledby="deploy-modal-title">
+    <div class="deploy-modal-container glass-card">
+      <div class="deploy-modal-header">
+        <div class="deploy-header-left">
+          <div class="deploy-icon-pulse">🌐</div>
+          <div>
+            <div class="dest-flag" data-i18n="tagSpaceAppsDeploy">NASA SPACE APPS 2026 • SUBMISSION READY</div>
+            <h2 id="deploy-modal-title" class="deploy-modal-title" data-i18n="titleDeployModal">Get Your Live URL &amp; Package Submission</h2>
+          </div>
+        </div>
+        <button class="close-modal-btn" id="close-deploy-modal-btn" aria-label="Close Deployment Modal">&times;</button>
+      </div>
+
+      <p class="deploy-intro-text" data-i18n="descDeployModal">
+        Here are the official, 100% free methods to generate a live HTTPS URL for your NASA Space Apps Challenge submission:
+      </p>
+
+      <div class="deploy-cards-grid">
+        <!-- Option 1: Netlify Drop (Fastest - 15 Seconds) -->
+        <div class="deploy-method-card popular">
+          <div class="method-badge-pill" data-i18n="badgeFastest">⚡ FASTEST • 15 SECONDS</div>
+          <div class="method-card-header">
+            <span class="method-icon">🚀</span>
+            <h3 class="method-title">Netlify Drop</h3>
+          </div>
+          <p class="method-desc" data-i18n="descNetlifyDrop">
+            Zero installations or command lines required. Drag and drop your project folder or ZIP directly into Netlify Drop to get an instant live HTTPS link!
+          </p>
+          <ol class="method-steps-list">
+            <li data-i18n="stepNetlify1">1. Click "Download Project ZIP" below.</li>
+            <li data-i18n="stepNetlify2">2. Open Netlify Drop in your browser.</li>
+            <li data-i18n="stepNetlify3">3. Drag the ZIP into the box — instant live URL generated!</li>
+          </ol>
+          <div class="method-actions">
+            <a href="https://app.netlify.com/drop" target="_blank" rel="noopener noreferrer" class="deploy-btn-cta primary">
+              <span data-i18n="btnOpenNetlifyDrop">Open Netlify Drop ↗</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Option 2: GitHub Pages (Official Standard) -->
+        <div class="deploy-method-card">
+          <div class="method-badge-pill" data-i18n="badgeOfficial">🪐 OFFICIAL NASA STANDARD</div>
+          <div class="method-card-header">
+            <span class="method-icon">🐙</span>
+            <h3 class="method-title">GitHub Pages</h3>
+          </div>
+          <p class="method-desc" data-i18n="descGitHubPages">
+            Host directly from your GitHub repository with automated GitHub Actions workflow included in the project.
+          </p>
+          <ol class="method-steps-list">
+            <li data-i18n="stepGit1">1. Push files to a new GitHub repository.</li>
+            <li data-i18n="stepGit2">2. Go to Repo Settings → Pages.</li>
+            <li data-i18n="stepGit3">3. Select "GitHub Actions" to deploy automatically.</li>
+          </ol>
+          <div class="method-actions">
+            <button class="deploy-btn-cta secondary copy-git-cmd-btn" id="copy-git-cmd-btn" type="button">
+              <span data-i18n="btnCopyGitCommands">📋 Copy Git Commands</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Option 3: Vercel (Zero-Config) -->
+        <div class="deploy-method-card">
+          <div class="method-badge-pill" data-i18n="badgeGlobal">⚡ ZERO-CONFIG</div>
+          <div class="method-card-header">
+            <span class="method-icon">▲</span>
+            <h3 class="method-title">Vercel</h3>
+          </div>
+          <p class="method-desc" data-i18n="descVercel">
+            Deploy with pre-configured <code>vercel.json</code>. Run <code>npx vercel</code> or import your repository.
+          </p>
+          <div class="code-snippet-box">
+            <code>npx vercel --prod</code>
+          </div>
+          <div class="method-actions">
+            <a href="https://vercel.com/new" target="_blank" rel="noopener noreferrer" class="deploy-btn-cta secondary">
+              <span data-i18n="btnOpenVercel">Open Vercel ↗</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick ZIP Download Trigger in Modal -->
+      <div class="deploy-modal-bottom-bar">
+        <div class="bottom-bar-left">
+          <span class="ready-badge">📦</span>
+          <div>
+            <strong data-i18n="lblNeedZipFile">Need the ZIP file for offline submission?</strong>
+            <p data-i18n="lblZipHint">Contains index.html, style.css, script.js, configs, and complete documentation.</p>
+          </div>
+        </div>
+        <button id="modal-download-zip-btn" class="wizard-nav-btn next-btn" type="button">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span data-i18n="btnDownloadZipNow">Download ZIP Now</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container for subtle micro-interactions -->
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
